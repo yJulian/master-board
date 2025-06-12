@@ -1,9 +1,13 @@
-#include "uart_imu.h"
+#include "imu.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/timers.h"
+#include "freertos/task.h"
 #include <stdio.h>
 #include <stdint.h>
 #include <unistd.h>
+#include "driver/uart.h"
+#include "driver/gpio.h"
+#include "esp_intr_alloc.h"
 
 #define FLOAT_TO_D16QN(a, n) ((int16_t)((a) * (1 << (n))))
 
