@@ -15,7 +15,7 @@
 #include "spi_manager.h"
 #include "spi_quad_packet.h"
 #include "quad_crc.h"
-#include "uart_imu.h"
+#include "imu.h"
 #include "ws2812_led_control.h"
 #include "defines.h"
 
