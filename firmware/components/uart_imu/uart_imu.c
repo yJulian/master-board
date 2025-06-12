@@ -1,4 +1,7 @@
 #include "imu.h"
+
+#if CONFIG_IMU_DRIVER_UART
+
 #include "freertos/FreeRTOS.h"
 #include "freertos/timers.h"
 #include "freertos/task.h"
@@ -297,3 +300,5 @@ int imu_init()
     }
     return 0;
 }
+#endif // CONFIG_IMU_DRIVER_UART
+

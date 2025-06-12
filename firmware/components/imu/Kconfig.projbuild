@@ -1,0 +1,15 @@
+menu "IMU"
+
+choice IMU_DRIVER
+    prompt "IMU driver implementation"
+    default IMU_DRIVER_UART
+
+    config IMU_DRIVER_UART
+        bool "UART IMU"
+    config IMU_DRIVER_I2C
+        bool "I2C IMU"
+    config IMU_DRIVER_MOCK
+        bool "Mock IMU"
+endchoice
+
+endmenu
