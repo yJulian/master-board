@@ -1,6 +1,7 @@
 #include "imu.h"
 
 #if CONFIG_IMU_DRIVER_UART
+
 #include "freertos/FreeRTOS.h"
 #include "freertos/timers.h"
 #include "freertos/task.h"
