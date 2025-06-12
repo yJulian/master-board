@@ -1,9 +1,15 @@
-#include "uart_imu.h"
+#include "imu.h"
+
+#if CONFIG_IMU_DRIVER_UART
 #include "freertos/FreeRTOS.h"
 #include "freertos/timers.h"
+#include "freertos/task.h"
 #include <stdio.h>
 #include <stdint.h>
 #include <unistd.h>
+#include "driver/uart.h"
+#include "driver/gpio.h"
+#include "esp_intr_alloc.h"
 
 #define FLOAT_TO_D16QN(a, n) ((int16_t)((a) * (1 << (n))))
 
@@ -293,3 +299,5 @@ int imu_init()
     }
     return 0;
 }
+#endif // CONFIG_IMU_DRIVER_UART
+
