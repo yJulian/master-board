@@ -544,7 +544,6 @@ void wifi_eth_link_state_cb(bool new_state)
 
 void app_main()
 {
-    uart_set_baudrate(UART_NUM_0, 2000000);
     nvs_flash_init();
     wifi_eth_rx_cmd_mailbox = xQueueCreate( 1, sizeof(struct wifi_eth_packet_command));
     ws2812_control_init(); //init the LEDs
