@@ -2,6 +2,7 @@
 #define IMU_H
 
 #include <stdint.h>
+#include "sdkconfig.h"
 
 int imu_init(void);
 int parse_IMU_data(void);
