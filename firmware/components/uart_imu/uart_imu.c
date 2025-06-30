@@ -3,6 +3,7 @@
 #if CONFIG_IMU_DRIVER_UART
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "freertos/semphr.h"
 #include "driver/uart.h"
 #include "driver/gpio.h"
 #include <stdio.h>
@@ -57,6 +58,13 @@ struct imu_data {
 
 static struct imu_data imu;
 
+static intr_handle_t imu_isr_handle;
+static SemaphoreHandle_t resp_sem;
+static volatile uint8_t resp_buf[64];
+static volatile uint8_t resp_len;
+static volatile int rx_pos;
+static volatile int expected_len;
+
 static esp_err_t bno_write(uint8_t reg, const uint8_t *data, uint8_t len)
 {
     uint8_t buf[4 + len];
@@ -74,31 +82,77 @@ static esp_err_t bno_write(uint8_t reg, const uint8_t *data, uint8_t len)
     return ESP_FAIL;
 }
 
-static esp_err_t bno_read(uint8_t reg, uint8_t *data, uint8_t len)
+static void IRAM_ATTR uart_intr_handle(void *arg)
+{
+    uint16_t status = UART1.int_st.val;
+    while (UART1.status.rxfifo_cnt) {
+        uint8_t b = UART1.fifo.rw_byte;
+
+        if (rx_pos == 0) {
+            if (b == BNO_RESP_OK) {
+                resp_buf[0] = b;
+                rx_pos = 1;
+                expected_len = -1;
+            } else if (b == BNO_RESP_ERR) {
+                resp_buf[0] = b;
+                rx_pos = 1;
+                expected_len = 2;
+            } else {
+                // ignore unknown byte
+            }
+        } else if (rx_pos == 1 && resp_buf[0] == BNO_RESP_OK && expected_len == -1) {
+            resp_buf[1] = b;
+            rx_pos = 2;
+            expected_len = 2 + b;
+            if (expected_len > (int)sizeof(resp_buf))
+                expected_len = sizeof(resp_buf);
+        } else {
+            if (rx_pos < (int)sizeof(resp_buf))
+                resp_buf[rx_pos] = b;
+            rx_pos++;
+        }
+
+        if (expected_len > 0 && rx_pos >= expected_len) {
+            resp_len = expected_len;
+            rx_pos = 0;
+            expected_len = 0;
+            BaseType_t hp = pdFALSE;
+            xSemaphoreGiveFromISR(resp_sem, &hp);
+            if (hp)
+                portYIELD_FROM_ISR();
+        }
+    }
+    uart_clear_intr_status(UART_NUM, status);
+}
+
+static esp_err_t bno_read_async(uint8_t reg, uint8_t *data, uint8_t len)
 {
     uint8_t cmd[4] = {BNO_START_BYTE, BNO_READ, reg, len};
+
+    rx_pos = 0;
+    expected_len = 0;
+    xSemaphoreTake(resp_sem, 0);
+
     uart_write_bytes(UART_NUM, (const char *)cmd, 4);
 
-    uint8_t header[2] = {0};
-    int r = uart_read_bytes(UART_NUM, header, 2, pdMS_TO_TICKS(100));
-    if (r != 2)
+    if (xSemaphoreTake(resp_sem, pdMS_TO_TICKS(100)) != pdTRUE)
         return ESP_FAIL;
-    if (header[0] == BNO_RESP_ERR)
+
+    if (resp_len < 2 || resp_buf[0] != BNO_RESP_OK || resp_buf[1] != len)
         return ESP_FAIL;
-    if (header[0] != BNO_RESP_OK)
+
+    if (resp_len - 2 < len)
         return ESP_FAIL;
-    int to_read = header[1];
-    if (to_read > len)
-        to_read = len;
-    r = uart_read_bytes(UART_NUM, data, to_read, pdMS_TO_TICKS(100));
-    return (r == to_read) ? ESP_OK : ESP_FAIL;
+
+    memcpy(data, &resp_buf[2], len);
+    return ESP_OK;
 }
 
 static void update_sensor(void)
 {
     uint8_t buf[6];
 
-    if (bno_read(BNO_ACCEL_DATA_X_LSB, buf, 6) == ESP_OK) {
+    if (bno_read_async(BNO_ACCEL_DATA_X_LSB, buf, 6) == ESP_OK) {
         int16_t ax = (int16_t)((buf[1] << 8) | buf[0]);
         int16_t ay = (int16_t)((buf[3] << 8) | buf[2]);
         int16_t az = (int16_t)((buf[5] << 8) | buf[4]);
@@ -107,7 +161,7 @@ static void update_sensor(void)
         imu.acc_z = az * ACC_SCALE;
     }
 
-    if (bno_read(BNO_GYRO_DATA_X_LSB, buf, 6) == ESP_OK) {
+    if (bno_read_async(BNO_GYRO_DATA_X_LSB, buf, 6) == ESP_OK) {
         int16_t gx = (int16_t)((buf[1] << 8) | buf[0]);
         int16_t gy = (int16_t)((buf[3] << 8) | buf[2]);
         int16_t gz = (int16_t)((buf[5] << 8) | buf[4]);
@@ -116,7 +170,7 @@ static void update_sensor(void)
         imu.gyr_z = gz * GYR_SCALE;
     }
 
-    if (bno_read(BNO_EULER_H_LSB, buf, 6) == ESP_OK) {
+    if (bno_read_async(BNO_EULER_H_LSB, buf, 6) == ESP_OK) {
         int16_t yaw = (int16_t)((buf[1] << 8) | buf[0]);
         int16_t roll = (int16_t)((buf[3] << 8) | buf[2]);
         int16_t pitch = (int16_t)((buf[5] << 8) | buf[4]);
@@ -125,7 +179,7 @@ static void update_sensor(void)
         imu.pitch = pitch * EULER_SCALE;
     }
 
-    if (bno_read(BNO_LINEAR_ACCEL_DATA_X_LSB, buf, 6) == ESP_OK) {
+    if (bno_read_async(BNO_LINEAR_ACCEL_DATA_X_LSB, buf, 6) == ESP_OK) {
         int16_t lax = (int16_t)((buf[1] << 8) | buf[0]);
         int16_t lay = (int16_t)((buf[3] << 8) | buf[2]);
         int16_t laz = (int16_t)((buf[5] << 8) | buf[4]);
@@ -146,7 +200,7 @@ int imu_init(void)
     };
     uart_param_config(UART_NUM, &uart_config);
     uart_set_pin(UART_NUM, PIN_TXD, PIN_RXD, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
-    uart_driver_install(UART_NUM, BUF_SIZE * 2, BUF_SIZE * 2, 0, NULL, 0);
+    uart_driver_install(UART_NUM, BUF_SIZE * 2, 0, 0, NULL, 0);
 
     uint8_t mode = 0x00; /* CONFIGMODE */
     bno_write(BNO_OPR_MODE, &mode, 1);
@@ -157,6 +211,13 @@ int imu_init(void)
     vTaskDelay(pdMS_TO_TICKS(30));
 
     memset(&imu, 0, sizeof(imu));
+
+    resp_sem = xSemaphoreCreateBinary();
+    uart_disable_tx_intr(UART_NUM);
+    uart_disable_rx_intr(UART_NUM);
+    uart_isr_free(UART_NUM);
+    uart_isr_register(UART_NUM, uart_intr_handle, NULL, ESP_INTR_FLAG_IRAM, &imu_isr_handle);
+    uart_enable_rx_intr(UART_NUM);
     return 0;
 }
 
