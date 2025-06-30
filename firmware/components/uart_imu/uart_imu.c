@@ -12,7 +12,7 @@
 #define FLOAT_TO_D16QN(a, n) ((int16_t)((a) * (1 << (n))))
 
 #define UART_NUM UART_NUM_1
-#define BUF_SIZE 64
+#define BUF_SIZE 128
 #define PIN_TXD 32
 #define PIN_RXD 35
 
