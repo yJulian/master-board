@@ -18,6 +18,10 @@ uint16_t get_acc_x_in_D16QN();
 uint16_t get_acc_y_in_D16QN();
 uint16_t get_acc_z_in_D16QN();
 
+uint16_t get_mag_x_in_D16QN();
+uint16_t get_mag_y_in_D16QN();
+uint16_t get_mag_z_in_D16QN();
+
 uint16_t get_gyr_x_in_D16QN();
 uint16_t get_gyr_y_in_D16QN();
 uint16_t get_gyr_z_in_D16QN();
@@ -25,6 +29,11 @@ uint16_t get_gyr_z_in_D16QN();
 uint16_t get_roll_in_D16QN();
 uint16_t get_pitch_in_D16QN();
 uint16_t get_yaw_in_D16QN();
+
+uint16_t get_quat_w_in_D16QN();
+uint16_t get_quat_x_in_D16QN();
+uint16_t get_quat_y_in_D16QN();
+uint16_t get_quat_z_in_D16QN();
 
 uint16_t get_linacc_x_in_D16QN();
 uint16_t get_linacc_y_in_D16QN();

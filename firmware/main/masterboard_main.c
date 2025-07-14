@@ -374,6 +374,10 @@ static void periodic_timer_callback(void *arg)
     wifi_eth_tx_data.imu.accelerometer[1] = get_acc_y_in_D16QN();
     wifi_eth_tx_data.imu.accelerometer[2] = get_acc_z_in_D16QN();
 
+    wifi_eth_tx_data.imu.magnetometer[2] = get_mag_x_in_D16QN();
+    wifi_eth_tx_data.imu.magnetometer[2] = get_mag_y_in_D16QN();
+    wifi_eth_tx_data.imu.magnetometer[2] = get_mag_z_in_D16QN();
+
     wifi_eth_tx_data.imu.gyroscope[0] = get_gyr_x_in_D16QN();
     wifi_eth_tx_data.imu.gyroscope[1] = get_gyr_y_in_D16QN();
     wifi_eth_tx_data.imu.gyroscope[2] = get_gyr_z_in_D16QN();
@@ -381,6 +385,11 @@ static void periodic_timer_callback(void *arg)
     wifi_eth_tx_data.imu.attitude[0] = get_roll_in_D16QN();
     wifi_eth_tx_data.imu.attitude[1] = get_pitch_in_D16QN();
     wifi_eth_tx_data.imu.attitude[2] = get_yaw_in_D16QN();
+
+    wifi_eth_tx_data.imu.quaternion[0] = get_quat_w_in_D16QN();
+    wifi_eth_tx_data.imu.quaternion[1] = get_quat_x_in_D16QN();
+    wifi_eth_tx_data.imu.quaternion[2] = get_quat_y_in_D16QN();
+    wifi_eth_tx_data.imu.quaternion[3] = get_quat_z_in_D16QN();
 
     wifi_eth_tx_data.imu.linear_acceleration[0] = get_linacc_x_in_D16QN();
     wifi_eth_tx_data.imu.linear_acceleration[1] = get_linacc_y_in_D16QN();
