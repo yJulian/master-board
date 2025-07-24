@@ -29,17 +29,20 @@ struct dual_motor_driver_command_packet_t
 struct imu_packet_t
 {
 	int16_t accelerometer[3];
+	int16_t magnetometer[3];
 	int16_t gyroscope[3];
 	int16_t attitude[3];
+	int16_t quaternion[4];
 	int16_t linear_acceleration[3];
 } __attribute__((packed));
 
-struct imu_data_t
-{
-	float accelerometer[3];
-	float gyroscope[3];
-	float attitude[3];
-	float linear_acceleration[3];
+struct imu_data {
+	int16_t accelerometer[3];
+	int16_t magnetometer[3];
+	int16_t gyroscope[3];
+	int16_t attitude[3];
+	int16_t quaternion[4];
+	int16_t linear_acceleration[3];
 } __attribute__((packed));
 
 struct powerboard_packet_t

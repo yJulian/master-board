@@ -366,11 +366,15 @@ void MasterBoardInterface::ParseSensorData()
   /*Read IMU data*/
   for (int i = 0; i < 3; i++)
   {
-    imu_data.accelerometer[i] = static_cast<float>(9.80665) * D16QN_TO_FLOAT(sensor_packet.imu.accelerometer[i], IMU_QN_ACC);
+    imu_data.accelerometer[i] = (float)(sensor_packet.imu.accelerometer[i]) * static_cast<float>(0.01);
     imu_data.gyroscope[i] = D16QN_TO_FLOAT(sensor_packet.imu.gyroscope[i], IMU_QN_GYR);
     imu_data.attitude[i] = D16QN_TO_FLOAT(sensor_packet.imu.attitude[i], IMU_QN_EF);
-    imu_data.linear_acceleration[i] = D16QN_TO_FLOAT(sensor_packet.imu.linear_acceleration[i], IMU_QN_ACC);
+    imu_data.linear_acceleration[i] = (float)(sensor_packet.imu.linear_acceleration[i]) * static_cast<float>(0.01);<
+    imu_data.magnetometer[i] = D16QN_TO_FLOAT(sensor_packet.magnetometer[i], IMU_QN_MAG);
+    imu_data.quaternion[i] = D16QN_TO_FLOAT(sensor_packet.quaternion[i], IMU_QN_QUAT);
   }
+  // 4th quaternion packet
+  imu_data.quaternion[3] = D16QN_TO_FLOAT(sensor_packet.quaternion[3], IMU_QN_QUAT);
 
   /*Read Power Board data*/
   powerboard_data.current_bus = sensor_packet.powerboard.vshunt * 5e-6f / 4e-3f;

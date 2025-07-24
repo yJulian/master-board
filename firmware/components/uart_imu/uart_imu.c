@@ -42,9 +42,9 @@
 #define QUAT_X_POS 28
 #define QUAT_Y_POS 30
 #define QUAT_Z_POS 32
-#define LINV_X_POS 34
-#define LINV_Y_POS 36
-#define LINV_Z_POS 38
+#define LINACC_X_POS 34
+#define LINACC_Y_POS 36
+#define LINACC_Z_POS 38
 
 #define FLOAT_TO_D16QN(a, n) ((int16_t)((a) * (1 << (n))))
 #define IMU_QN_MAG 4
@@ -196,9 +196,9 @@ inline int parse_IMU_data()
     current_values.quat_y = get_quaternion_from_bytes(latest_frame.data[QUAT_Y_POS], latest_frame.data[QUAT_Y_POS + 1]);
     current_values.quat_z = get_quaternion_from_bytes(latest_frame.data[QUAT_Z_POS], latest_frame.data[QUAT_Z_POS + 1]);
 
-    current_values.linacc_x = get_linacc_from_bytes(latest_frame.data[LINV_X_POS], latest_frame.data[LINV_X_POS + 1]);
-    current_values.linacc_y = get_linacc_from_bytes(latest_frame.data[LINV_Y_POS], latest_frame.data[LINV_Y_POS + 1]);
-    current_values.linacc_z = get_linacc_from_bytes(latest_frame.data[LINV_Z_POS], latest_frame.data[LINV_Z_POS + 1]);
+    current_values.linacc_x = get_linacc_from_bytes(latest_frame.data[LINACC_X_POS], latest_frame.data[LINACC_X_POS + 1]);
+    current_values.linacc_y = get_linacc_from_bytes(latest_frame.data[LINACC_Y_POS], latest_frame.data[LINACC_Y_POS + 1]);
+    current_values.linacc_z = get_linacc_from_bytes(latest_frame.data[LINACC_Z_POS], latest_frame.data[LINACC_Z_POS + 1]);
 
     return 0;
 }
