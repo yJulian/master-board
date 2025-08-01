@@ -301,7 +301,7 @@ static void periodic_timer_callback(void *arg)
     /* Perform every transaction the needed number of times */
     for (int spi_try = 0; spi_try < spi_n_attempt; spi_try++)
     {
-        for (int i = 0; i < CONFIG_N_SLAVES; i++)
+        for (int i = 1; i < CONFIG_N_SLAVES+1; i++)
         {
             if (!TEST_BIT(spi_connected, i) && !spi_autodetect)
                 continue; // ignoring this slave if it is not connected
