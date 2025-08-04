@@ -26,25 +26,25 @@
 //position of the data in the IMU message
 #define IMU_RESPONSE_MSG_STATUS_POS 0
 #define IMU_RESPONSE_MSG_LEN_POS 1
-#define ACCX_POS 2
-#define ACCY_POS 4
-#define ACCZ_POS 6
-#define MAGX_POS 8
-#define MAGY_POS 10
-#define MAGZ_POS 12
-#define GYRX_POS 14
-#define GYRY_POS 16
-#define GYRZ_POS 18
-#define EUL_YAW_POS 20
-#define EUL_ROLL_POS 22
-#define EUL_PITCH_POS 24
-#define QUAT_W_POS 26
-#define QUAT_X_POS 28
-#define QUAT_Y_POS 30
-#define QUAT_Z_POS 32
-#define LINACC_X_POS 34
-#define LINACC_Y_POS 36
-#define LINACC_Z_POS 38
+#define ACCX_POS 0
+#define ACCY_POS 2
+#define ACCZ_POS 4
+#define MAGX_POS 6
+#define MAGY_POS 8
+#define MAGZ_POS 10
+#define GYRX_POS 12
+#define GYRY_POS 14
+#define GYRZ_POS 16
+#define EUL_YAW_POS 18
+#define EUL_ROLL_POS 20
+#define EUL_PITCH_POS 22
+#define QUAT_W_POS 24
+#define QUAT_X_POS 26
+#define QUAT_Y_POS 28
+#define QUAT_Z_POS 30
+#define LINACC_X_POS 32
+#define LINACC_Y_POS 34
+#define LINACC_Z_POS 36
 
 #define FLOAT_TO_D16QN(a, n) ((int16_t)((a) * (1 << (n))))
 #define IMU_QN_MAG 4

@@ -301,7 +301,7 @@ static void periodic_timer_callback(void *arg)
     /* Perform every transaction the needed number of times */
     for (int spi_try = 0; spi_try < spi_n_attempt; spi_try++)
     {
-        for (int i = 1; i < CONFIG_N_SLAVES+1; i++)
+        for (int i = 1; i < CONFIG_N_SLAVES; i++)
         {
             if (!TEST_BIT(spi_connected, i) && !spi_autodetect)
                 continue; // ignoring this slave if it is not connected
@@ -374,8 +374,8 @@ static void periodic_timer_callback(void *arg)
     wifi_eth_tx_data.imu.accelerometer[1] = get_acc_y_in_D16QN();
     wifi_eth_tx_data.imu.accelerometer[2] = get_acc_z_in_D16QN();
 
-    wifi_eth_tx_data.imu.magnetometer[2] = get_mag_x_in_D16QN();
-    wifi_eth_tx_data.imu.magnetometer[2] = get_mag_y_in_D16QN();
+    wifi_eth_tx_data.imu.magnetometer[0] = get_mag_x_in_D16QN();
+    wifi_eth_tx_data.imu.magnetometer[1] = get_mag_y_in_D16QN();
     wifi_eth_tx_data.imu.magnetometer[2] = get_mag_z_in_D16QN();
 
     wifi_eth_tx_data.imu.gyroscope[0] = get_gyr_x_in_D16QN();
